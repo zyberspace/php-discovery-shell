@@ -89,7 +89,7 @@ class DiscoveryShell
                 return $value->value->value; //\PhpParser\Node\Arg -> \PhpParser\Node\Scalar\[...] -> value
             }, $statements[0]->args);
 
-            $answer = call_user_func_array(array($telegram, $method), $arguments);
+            $answer = call_user_func_array(array($this->_object, $method), $arguments);
             $this->_outputAnswer($answer);
         }
     }
