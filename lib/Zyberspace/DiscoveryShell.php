@@ -82,12 +82,7 @@ class DiscoveryShell
         while (true) {
             $input = $this->_getInput();
 
-            $statements = $this->_parser->parse('<?php ' . $input . ';');
-
-            $method = $statements[0]->name->toString();
-            $arguments = array_map(function($value) {
-                return $value->value->value; //\PhpParser\Node\Arg -> \PhpParser\Node\Scalar\[...] -> value
-            }, $statements[0]->args);
+            list($method, $arguments) = $this->_parseInput($input);
 
             $answer = call_user_func_array(array($this->_object, $method), $arguments);
             $this->_outputAnswer($answer);
@@ -101,6 +96,18 @@ class DiscoveryShell
         $this->_writeHistory();
 
         return $input;
+    }
+
+    protected function _parseInput($input)
+    {
+        $statements = $this->_parser->parse('<?php ' . $input . ';');
+
+        $method = $statements[0]->name->toString();
+        $arguments = array_map(function($value) {
+            return $value->value->value; //\PhpParser\Node\Arg -> \PhpParser\Node\Scalar\[...] -> value
+        }, $statements[0]->args);
+
+        return array($method, $arguments);
     }
 
     protected function _outputAnswer($answer)
