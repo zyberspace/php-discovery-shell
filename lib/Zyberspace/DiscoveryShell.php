@@ -37,6 +37,9 @@ class DiscoveryShell
     }
 
     protected function _completionFunction($toComplete, $toCompletePosition, $toCompleteLength) {
+        if ($toCompletePosition !== 0) { // only complete method-names
+            return false;
+        }
         $reflectionClass = new \ReflectionClass($this->_object);
         $methods = $reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC);
 
