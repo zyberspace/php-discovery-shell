@@ -57,7 +57,7 @@ class DiscoveryShell
             }
         }
 
-        return $matchingMethods;
+        return count($matchingMethods) > 0 ? $matchingMethods : null;
     }
 
     protected function _loadHistory()
