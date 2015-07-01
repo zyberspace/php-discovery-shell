@@ -103,11 +103,45 @@ class DiscoveryShell
         $statements = $this->_parser->parse('<?php ' . $input . ';');
 
         $method = $statements[0]->name->toString();
-        $arguments = array_map(function($value) {
-            return $value->value->value; //\PhpParser\Node\Arg -> \PhpParser\Node\Scalar\[...] -> value
-        }, $statements[0]->args);
+        $arguments = $this->_parseArgumentNodes($statements[0]->args);
 
         return array($method, $arguments);
+    }
+
+    protected function _parseArgumentNodes($argumentNodes)
+    {
+        $arguments = array();
+        foreach ($argumentNodes as $argumentNode) {
+            $argumentNodeValue = $argumentNode->value;
+
+            $argument = null; //null if we don't support the node-type of the argument
+            if (
+                $argumentNodeValue instanceof \PhpParser\Node\Scalar\DNumber
+                || $argumentNodeValue instanceof \PhpParser\Node\Scalar\LNumber
+                || $argumentNodeValue instanceof \PhpParser\Node\Scalar\String_
+            ) {
+                $argument = $argumentNodeValue->value;
+            } else if ($argumentNodeValue instanceof \PhpParser\Node\Expr\ConstFetch) {
+                switch (strtolower($argumentNodeValue->name->parts[0])) {
+                    case 'true':
+                        $argument = true;
+                        break;
+                    case 'false':
+                        $argument = false;
+                        break;
+                }
+            } else if ($argumentNodeValue instanceof \PhpParser\Node\Expr\Array_) {
+                $argument = $this->_parseArgumentNodes($argumentNodeValue->items);
+            }
+
+            if (isset($argumentNode->key) && $argumentNode->key !== NULL) { //if $argumentNodes is an array-node
+                $arguments[$argumentNode->key->value] = $argument;
+            } else {
+                $arguments[] = $argument;
+            }
+        }
+
+        return $arguments;
     }
 
     protected function _outputAnswer($answer)
