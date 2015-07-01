@@ -79,6 +79,11 @@ class DiscoveryShell
      */
     protected function _runShell()
     {
+        echo wordwrap('-- discovery-shell to help discover a class or library --' . PHP_EOL . PHP_EOL
+            . 'Use TAB for autocompletion and your arrow-keys to navigate through your method-history.' . PHP_EOL
+            . 'Beware! This is not a full-featured php-shell. The input gets parsed with PHP-Parser to avoid the usage'
+            . ' of eval().' . PHP_EOL, exec('tput cols'), PHP_EOL);
+
         while (true) {
             $input = $this->_getInput();
 
